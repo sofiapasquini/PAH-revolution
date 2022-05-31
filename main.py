@@ -11,6 +11,7 @@ eventually be edited to accomodate the JWST data (perhaps a separate script?).
 
 '''
 #import relevant packages
+from clustering import optimal_clusters_plot, pca_visual
 from spec_build import *
 from pre_processing import *
 
@@ -36,3 +37,18 @@ df=df_create(ext_corr_spec)
 
 #apply z-standardization to the spectra
 df=standardize(df)
+
+#processing- the algorithm itself
+
+#start by determining the optimal number of clusters to use
+
+clusters_range=[2,3,4,5,6,7,8] #can change to anything you like
+
+#visually inspect the clusters to determine the optimal number of clusters
+optimal_clusters_plot(clusters_range, df)
+
+#prompt the user for the optimal number of clusters going forwards
+optimal_n_clusters=input("Please input the optimal number of clusters: ")
+
+#perform a PCA to retreive parameter-space dimensions
+pca_visual(df, optimal_n_clusters)# move to above the line before??...
