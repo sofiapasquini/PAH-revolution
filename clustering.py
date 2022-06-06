@@ -17,14 +17,14 @@ another module (ie analysis.py).
 '''
 
 #import relevant packages
-from sklearn.cluster import AgglomerativeClustering
+from sklearn.cluster import AgglomerativeClustering, KMeans
 from sklearn.decomposition import PCA
 from sklearn.metrics import silhouette_samples, silhouette_score
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import numpy as np
 
-def optimal_clusters_plot(n_clusters, X):
+def optimal_clusters_inspect(n_clusters, X):
     '''
     This function helps to determine the optimal number of clusters to use
     for a given data set using silhouette scores. For any given input number
@@ -90,7 +90,7 @@ def optimal_clusters_plot(n_clusters, X):
             # Compute the new y_lower for next plot
             y_lower = y_upper + 10  # 10 for the 0 samples
 
-        axs.set_title(f"Average Silhouette score for {n} clusters = {silhouette_avg}")
+        axs.set_title("Average Silhouette score for "+str(n)+" clusters = "+str(silhouette_avg))
         axs.set_xlabel("The silhouette coefficient values")
         axs.set_ylabel("Cluster label")
 
