@@ -9,7 +9,6 @@ with the JWST data cube format.
 '''
 
 import numpy as np
-from sklearn.preprocessing import StandardScaler 
 
 #a function to concatenate the spectra from a map into one large array
 
@@ -46,25 +45,3 @@ def df_create(map):
     #return the array of the cleaned spectra
     return df
 
-def standardize(df):
-    '''
-    Apply z-scaling to each of the features.
-
-    Inputs:
-        2-D array of cleaned spectra
-
-    Outputs:
-        2-D array of cleaned, standardized spectra.
-    '''
-    
-    #initialize the scaler object
-    scaler=StandardScaler(with_mean=True, with_std=True)
-    
-    #fit and apply the standardization to the input array
-    df=scaler.fit_transform(df)
-    
-    #return the standardized array
-    return df
-
-
-    

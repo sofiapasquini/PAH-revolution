@@ -14,12 +14,12 @@ eventually be edited to accomodate the JWST data (perhaps a separate script?).
 
 '''
 #import relevant packages
-from tkinter import N
-from clustering import optimal_clusters_inspect, pca_visual
+from processing import optimal_clusters_inspect, pca_visual
 from spec_build import *
 from pre_processing import *
 from sklearn.cluster import AgglomerativeClustering, KMeans
 from sklearn.decomposition import PCA
+from sklearn.preprocessing import normalize
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
@@ -43,8 +43,8 @@ ext_corr_spec=extinction_correct(ext, spectra)
 #transform the map(s) from 3 to 2-dimensional array(s and consolidate)
 df=df_create(ext_corr_spec)
 
-#apply z-standardization to the spectra
-df=standardize(df)
+#apply normalization to the spectra
+df=normalize(df)
 
 #processing- the algorithm itself
 
@@ -71,8 +71,8 @@ cluster_labels=clusterer.fit_predict(df_pca)
 
 #now plot the results
 #plot in pc space, color-code by cluster
-for i in range(optimal_clusters):
-    color = cm.nipy_spectral(float(i) / optimal_clusters)
+for i in range(optimal_n_clusters):
+    color = cm.nipy_spectral(float(i) / optimal_n_clusters)
     plt.scatter(df_pca[cluster_labels==i, 0], df_pca[cluster_labels==i, 1], 
                 label='Cluster %i' % (i+1))
 
