@@ -14,7 +14,7 @@ eventually be edited to accomodate the JWST data (perhaps a separate script?).
 
 '''
 #import relevant packages
-from processing import optimal_clusters_inspect, pca_visual
+from processing import optimal_clusters_inspect, pca_visual, plot_dendrogram
 from spec_build import *
 from pre_processing import *
 from sklearn.cluster import AgglomerativeClustering, KMeans
@@ -23,17 +23,18 @@ from sklearn.preprocessing import normalize
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
+
 ##SOFIA- currently working only with the North files, pondering how best to
 #consolidate the South data files into the dataset
 
 #load in and reshape all wavelength, extinction, spectral maps
-spectra, wave= load_spec_wavelength("NGC2023_SPECTRAL_MAP_NORTH.fits")
+spectra, wave= load_spec_wavelength("NGC2023_SPECTRAL_MAP_SOUTH.fits")
 
 #load in and reshape continuum and corresponding wavelentgh arrays
-cont, wave_cont=load_continuum("NGC2023_CONTINUUM_MAP_NORTH.fits")
+cont, wave_cont=load_continuum("NGC2023_CONTINUUM_MAP_SOUTH.fits")
 
 #load in and reshape the extinction maps and corresponding wavelength array
-ext, wave_ext=load_extinction("NGC2023_EXTINCTION_MAPS_NORTH.fits")
+ext, wave_ext=load_extinction("NGC2023_EXTINCTION_MAPS_SOUTH.fits")
 
 #extinction correct the spectra
 ext_corr_spec=extinction_correct(ext, spectra)
@@ -56,7 +57,7 @@ clusters_range=[2,3,4,5,6,7,8] #can change to anything you like
 optimal_clusters_inspect(clusters_range, df)
 
 #prompt the user for the optimal number of clusters going forwards
-optimal_n_clusters=input("Please input the optimal number of clusters: ")
+optimal_n_clusters=int(input("Please input the optimal number of clusters: "))
 
 #deploy agglomerative clustering with optimal number of clusters
 ##SOFIA- consider re-coding this in a method in the clustering module?
@@ -66,7 +67,7 @@ pca = PCA(n_components = 2) # use 2 from Ameek's paper- could also experiment wi
 df_pca = pca.fit_transform(df)
 
 #apply the agglomerative clustering algorithm with optimal number of clusters
-clusterer=AgglomerativeClustering(n_clusters=optimal_n_clusters) #SOFIA- experiment/finalize parameter settings
+clusterer=AgglomerativeClustering(n_clusters=optimal_n_clusters, compute_distances=True) #SOFIA- experiment/finalize parameter settings
 cluster_labels=clusterer.fit_predict(df_pca)
 
 #now plot the results
@@ -80,6 +81,14 @@ plt.xlabel('Component 1')
 plt.ylabel('Component 2')
 plt.title('PCA-transformed plot for %i clusters' % optimal_n_clusters)
 plt.legend()
+plt.show()
+
+
+#now lets try for a dendrogram visual
+plt.title("Hierarchical Clustering Dendrogram")
+# plot the top three levels of the dendrogram
+plot_dendrogram(clusterer, truncate_mode="none")
+plt.xlabel("Number of points in node (or index of point if no parenthesis).")
 plt.show()
 
 #analyze key features of spectra groups/clusters here

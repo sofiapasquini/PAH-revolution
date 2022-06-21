@@ -18,6 +18,7 @@ from sklearn.decomposition import PCA
 from sklearn.metrics import silhouette_samples, silhouette_score
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+from scipy.cluster.hierarchy import dendrogram
 
 def synthetic_sampler(df):
     '''
@@ -149,7 +150,8 @@ def compute_performance(yhat, y, classes):
     fp = sum(np.logical_and(yhat == classes[1], y == classes[0]))
     fn = sum(np.logical_and(yhat == classes[0], y == classes[1]))
 
-    print(f"tp: {tp} tn: {tn} fp: {fp} fn: {fn}")
+    print("tp: "+str(tp)+" tn: "+str(tn)+" fp: "+str(fp)+" fn: "+str(fn))
+    # print(f"tp: {tp} tn: {tn} fp: {fp} fn: {fn}")
     
     # Accuracy
     acc = (tp + tn) / (tp + tn + fp + fn)
@@ -361,3 +363,35 @@ def pca_visual(X, n_clusters):
         axs.set_title("The visualization of the clustered data for "+ str(n)+" clusters.")
 
     plt.show()
+
+
+def plot_dendrogram(model, **kwargs):
+    ''' This function computes a linkage matrix from a given hierarchical model 
+    and plots the corresponding dendrogram.
+
+    Inputs: 
+        model: the fitted, hierarchical model for which to plot the dendrogram.
+
+    Outputs:
+        a figure object containing the dendrogram for the given model.
+    '''
+    # Create linkage matrix and then plot the dendrogram
+
+    # create the counts of samples under each node
+    counts = np.zeros(model.children_.shape[0])
+    n_samples = len(model.labels_)
+    for i, merge in enumerate(model.children_):
+        current_count = 0
+        for child_idx in merge:
+            if child_idx < n_samples:
+                current_count += 1  # leaf node
+            else:
+                current_count += counts[child_idx - n_samples]
+        counts[i] = current_count
+
+    linkage_matrix = np.column_stack(
+        [model.children_, model.distances_, counts]
+    ).astype(float)
+
+    # Plot the corresponding dendrogram
+    dendrogram(linkage_matrix, **kwargs)

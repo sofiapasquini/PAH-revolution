@@ -57,7 +57,7 @@ clusters_range=[2,3,4,5,6,7,8] #can change to anything you like
 optimal_clusters_inspect(clusters_range, df)
 
 #prompt the user for the optimal number of clusters going forwards
-optimal_n_clusters=input("Please input the optimal number of clusters: ")
+optimal_n_clusters=int(input("Please input the optimal number of clusters: "))
 
 #sofia add in the two clustering algorithms here (see the Algo Pseudo Code nb)
 
