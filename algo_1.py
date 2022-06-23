@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
 
-##SOFIA- currently working only with the North files, pondering how best to
+##SOFIA- currently working only with the South files, pondering how best to
 #consolidate the South data files into the dataset
 
 #load in and reshape all wavelength, extinction, spectral maps

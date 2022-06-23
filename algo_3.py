@@ -34,13 +34,13 @@ import seaborn as sns
 #consolidate the South data files into the dataset
 
 #load in and reshape all wavelength, extinction, spectral maps
-spectra, wave= load_spec_wavelength("NGC2023_SPECTRAL_MAP_NORTH.fits")
+spectra, wave= load_spec_wavelength("NGC2023_SPECTRAL_MAP_SOUTH.fits")
 
 #load in and reshape continuum and corresponding wavelentgh arrays
-cont, wave_cont=load_continuum("NGC2023_CONTINUUM_MAP_NORTH.fits")
+cont, wave_cont=load_continuum("NGC2023_CONTINUUM_MAP_SOUTH.fits")
 
 #load in and reshape the extinction maps and corresponding wavelength array
-ext, wave_ext=load_extinction("NGC2023_EXTINCTION_MAPS_NORTH.fits")
+ext, wave_ext=load_extinction("NGC2023_EXTINCTION_MAPS_SOUTH.fits")
 
 #extinction correct the spectra
 ext_corr_spec=extinction_correct(ext, spectra)

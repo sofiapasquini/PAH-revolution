@@ -24,17 +24,17 @@ from pre_processing import *
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
-##SOFIA- currently working only with the North files, pondering how best to
+##SOFIA- currently working only with the SOUTH files, pondering how best to
 #consolidate the South data files into the dataset
 
 #load in and reshape all wavelength, extinction, spectral maps
-spectra, wave= load_spec_wavelength("NGC2023_SPECTRAL_MAP_NORTH.fits")
+spectra, wave= load_spec_wavelength("NGC2023_SPECTRAL_MAP_SOUTH.fits")
 
 #load in and reshape continuum and corresponding wavelentgh arrays
-cont, wave_cont=load_continuum("NGC2023_CONTINUUM_MAP_NORTH.fits")
+cont, wave_cont=load_continuum("NGC2023_CONTINUUM_MAP_SOUTH.fits")
 
 #load in and reshape the extinction maps and corresponding wavelength array
-ext, wave_ext=load_extinction("NGC2023_EXTINCTION_MAPS_NORTH.fits")
+ext, wave_ext=load_extinction("NGC2023_EXTINCTION_MAPS_SOUTH.fits")
 
 #extinction correct the spectra
 ext_corr_spec=extinction_correct(ext, spectra)
@@ -66,16 +66,16 @@ pca = PCA(n_components = 2) # use 2 from Ameek's paper- could also experiment wi
 df_pca = pca.fit_transform(df)
 
 #start with the agglomerative clustering
-clusterer_1=AgglomerativeClustering(n_clusters=optimal_n_clusters)
+clusterer_1=AgglomerativeClustering(n_clusters=optimal_n_clusters, compute_distances=True)
 agglo_cluster_labels=clusterer_1.fit_predict(df_pca)
 
 #now compute the centroids of the clusters in the PC space
-clf=NearestCentroid()
-centroids=clf.fit(df_pca, agglo_cluster_labels)
+cent=NearestCentroid()
+centroids=cent.fit(df_pca, agglo_cluster_labels).centroids_
 
 #now pass the centroids as initial centroid locations for KMeans clustering
-clusterer_2 = KMeans(n_clusters=5, random_state=10, init=centroids) #use a random state for reproducibility
-kmeans_cluster_labels = clusterer_2.fit_predict(df_pca)
+clusterer_2 = KMeans(n_clusters=optimal_n_clusters, random_state=10, init=centroids) #use a random state for reproducibility
+kmeans_cluster_labels = clusterer_2.fit_predict(df_pca) #is this correct? The input to the kmeans clustering should be
 
 #now visualize the results
 import matplotlib.cm as cm
