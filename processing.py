@@ -19,6 +19,8 @@ from sklearn.metrics import silhouette_samples, silhouette_score
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from scipy.cluster.hierarchy import dendrogram
+from yellowbrick.cluster import KElbowVisualizer
+
 
 def synthetic_sampler(df):
     '''
@@ -395,3 +397,13 @@ def plot_dendrogram(model, **kwargs):
 
     # Plot the corresponding dendrogram
     dendrogram(linkage_matrix, **kwargs)
+
+
+def elbow_plot(cluster_range, data, model=AgglomerativeClustering(), metric="distortion", timing=True):
+
+    #initialize the visualizer with the specified input parameters
+    visualizer=KElbowVisualizer(model, k=cluster_range, timings=timing , metric=metric)
+    #fit the visualizer with thespecified model and range of clusters
+    visualizer.fit(data)
+    #show the plot
+    visualizer.show()

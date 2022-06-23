@@ -18,7 +18,8 @@ from sklearn.cluster import AgglomerativeClustering, KMeans
 from sklearn.neighbors import NearestCentroid
 from sklearn.preprocessing import normalize
 from sklearn.decomposition import PCA
-from processing import optimal_clusters_inspect, pca_visual
+from sklearn.metrics import silhouette_score
+from processing import optimal_clusters_inspect, pca_visual, elbow_plot
 from spec_build import *
 from pre_processing import *
 import matplotlib.pyplot as plt
@@ -53,6 +54,9 @@ df=normalize(df)
 
 clusters_range=[2,3,4,5,6,7,8] #can change to anything you like
 
+#create an elbow plot to visualize the difference between the quality of clustering for each number of clusters
+elbow_plot(cluster_range=clusters_range, data=df)
+
 #visually inspect the clusters to determine the optimal number of clusters
 optimal_clusters_inspect(clusters_range, df)
 
@@ -68,6 +72,8 @@ df_pca = pca.fit_transform(df)
 #start with the agglomerative clustering
 clusterer_1=AgglomerativeClustering(n_clusters=optimal_n_clusters, compute_distances=True)
 agglo_cluster_labels=clusterer_1.fit_predict(df_pca)
+#calculate the silhouette coefficient for the initial agglomerative clustering
+agglo_silhouette=silhouette_score(df_pca, agglo_cluster_labels)
 
 #now compute the centroids of the clusters in the PC space
 cent=NearestCentroid()
@@ -76,6 +82,12 @@ centroids=cent.fit(df_pca, agglo_cluster_labels).centroids_
 #now pass the centroids as initial centroid locations for KMeans clustering
 clusterer_2 = KMeans(n_clusters=optimal_n_clusters, random_state=10, init=centroids) #use a random state for reproducibility
 kmeans_cluster_labels = clusterer_2.fit_predict(df_pca) #is this correct? The input to the kmeans clustering should be
+#calculate the silhouette coefficient for the kmeans clustering
+kmeans_silhouette=silhouette_score(df_pca, kmeans_cluster_labels)
+
+#calculate and report the improvement of the silhouette score by the kmeans clustering
+silhouette_improved=kmeans_silhouette-agglo_silhouette #note: if negative the score worsened
+
 
 #now visualize the results
 import matplotlib.cm as cm
@@ -85,7 +97,8 @@ axs.scatter(df_pca[:, 0], df_pca[:, 1], marker='.', s=30, lw=0, alpha=0.7,
                 c=colors, edgecolor='k')
 axs.set_xlabel("First Component Space")
 axs.set_ylabel("Second Component Space")
-axs.set_title("The visualization of the clustered data for "+ str(optimal_n_clusters)+" clusters.")
+axs.set_title(f"Avg Silhouette Score: {round(kmeans_silhouette,4)}, improved by: {round(silhouette_improved,4)}.")
+plt.suptitle("The visualization of the clustered data for "+ str(optimal_n_clusters)+" clusters.")
 plt.plot(centroids[:,0], centroids[:,1], "*", color='red') #these are the cluster centroids
 plt.show()
 

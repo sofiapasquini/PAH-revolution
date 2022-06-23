@@ -28,6 +28,7 @@ from sklearn.preprocessing import normalize
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.manifold import MDS 
+from sklearn.metrics import silhouette_score
 import seaborn as sns
 
 ##SOFIA- currently working only with the North files, pondering how best to
@@ -58,6 +59,9 @@ df=normalize(df)
 #start by determining the optimal number of clusters to use
 
 clusters_range=[2,3,4,5,6,7,8] #can change to anything you like
+
+#create an elbow plot to visualize the difference between the quality of clustering for each number of clusters
+elbow_plot(cluster_range=clusters_range, data=df)
 
 #visually inspect the clusters to determine the optimal number of clusters
 optimal_clusters_inspect(clusters_range, df)
@@ -104,7 +108,12 @@ embedding=mds.fit_transform(dis_matrix)
 #pass the embeddings to Agglomerative Clustering
 clusterer=AgglomerativeClustering(n_clusters=optimal_n_clusters)
 results= clusterer.fit_predict(embedding)
+#calculate the silhouette score
+agglo_silhouette_score=silhouette_score(embedding, results)
 
 #now visualize the results (embeddings color-coded by cluster labels)
 sns.scatterplot(embedding[:,0], embedding[:,1], hue=results)
+plt.xlabel("Dimension 1")
+plt.ylabel("Dimension 2")
+plt.suptitle(f"Agglomerative Clustering on 2-D MDS Embeddings \n Avg Silhouette Score: {agglo_silhouette_score}.")
 plt.show()

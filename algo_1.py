@@ -14,7 +14,7 @@ eventually be edited to accomodate the JWST data (perhaps a separate script?).
 
 '''
 #import relevant packages
-from processing import optimal_clusters_inspect, pca_visual, plot_dendrogram
+from processing import elbow_plot, optimal_clusters_inspect, pca_visual, plot_dendrogram
 from spec_build import *
 from pre_processing import *
 from sklearn.cluster import AgglomerativeClustering, KMeans
@@ -22,6 +22,7 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import normalize
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+
 
 
 ##SOFIA- currently working only with the South files, pondering how best to
@@ -52,6 +53,9 @@ df=normalize(df)
 #start by determining the optimal number of clusters to use
 
 clusters_range=[2,3,4,5,6,7,8] #can change to anything you like
+
+#create an elbow plot to visualize the difference between the quality of clustering for each number of clusters
+elbow_plot(cluster_range=clusters_range, data=df)
 
 #visually inspect the clusters to determine the optimal number of clusters
 optimal_clusters_inspect(clusters_range, df)
