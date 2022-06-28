@@ -45,3 +45,29 @@ def df_create(map):
     #return the array of the cleaned spectra
     return df
 
+
+def normalize_77(df):
+    '''
+    This is a function which normalizes the fluxes of spectra in an array to that of the 7.7 micro meter flux.
+    Note that this function was written for a dataframe in which the index of the column holding the 7.7 micro meter 
+    flux is known and is hard-coded in as the variable idx_77- this value can be altered/changed going forwards/based
+    on the use case.
+
+    Inputs:
+        df: array-like, nxm where n is the number of spectra and m are the wavelength features.
+    
+    Outputs:
+        an array-like, an nxm array which is the version of the original input matrix which has been 
+        normalized to the 7.7 microm feature for all spectra.
+    '''
+    #find the index of 7.7microm feature
+    idx_77=np.where(wave==7.719988) #found this index by manual inspection, not very scientific, can change when/if data changes
+
+    #for each observation, divide each flux value by the 7.7 microm flux
+    for i in range(df.shape[0]):
+        spectrum=df[i,:] #the entire original spectrum
+        normalized_spec=np.divide(spectrum, df[i,idx_77]) #the normalized spectrum
+        #replace the original spectrum in the dataframe with the normalized one
+        df[i,:]=normalized_spec
+
+    return df

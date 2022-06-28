@@ -53,6 +53,8 @@ df=df_create(ext_corr_spec)
 
 #apply normalization to the spectra
 df=normalize(df)
+#uncomment the line below if you want to normalize wrt the 7.7 micro meter flux:
+# df=normalize_77(df)
 
 #processing- the algorithm itself
 
