@@ -46,6 +46,10 @@ def df_create(map):
     return df
 
 
+
+
+
+
 def normalize_77(df):
     '''
     This is a function which normalizes the fluxes of spectra in an array to that of the 7.7 micro meter flux.

@@ -11,6 +11,7 @@ Coded originally for the Spitzer data cube format, will be edited in accordance
 with the JWST data cube format.
 '''
 
+from numpy import row_stack
 import numpy as np
 from scipy.linalg import sqrtm
 from sklearn.cluster import AgglomerativeClustering, KMeans
@@ -407,3 +408,79 @@ def elbow_plot(cluster_range, data, model=AgglomerativeClustering(), metric="dis
     visualizer.fit(data)
     #show the plot
     visualizer.show()
+
+
+def avg_label(label, spectra, labels): #inputs are an integer label, the array holding the spectra, and the array holding the labels
+    '''
+    This is a function which, given a label, an array-like containing labels, and an array-
+    like of similar dimension containing the corresponding spectra, returns the average
+    spectrum for the specified label/class.
+
+    Inputs:
+        label: integer- the chosen label for which the average spectrum is to be plotted
+
+        spectra: an array-like - an nxmxr matrix where n and m are the spatial dimensions
+            and r is the wavelength dimension; the array holding the spectra
+
+        labels: an array-like - an nxm matrix (where n,m are the same as in the spectra
+            array) which holds the corresponding labels for each spectrum in the spectra 
+            matrix
+
+    Outputs:
+        an array-like- the averaged spectrum for the specified label class.
+    '''
+    specs_list=[] #an empty list- will hold all the spectra (arrays) for the specified label
+    
+    #iterate through the labels array
+    #the first two indices in the spectra array match those in the labels array
+    for i in range(labels.shape[0]): #across the rows
+        for j in range(labels.shape[1]): #across the columns
+            
+            #save all the corresponding spectra
+            if labels[i,j]==label:
+                specs_list.append(spectra[i,j,:]) #save the spectrum to the list
+     
+    specs_array=np.array(specs_list) #create an array of the spectra (easier for the following operations)
+    
+    #average them up- we want to average along each flux value
+    #we construct the averaged spectrum one wavelength at a time
+    avg_spec=np.zeros((specs_array.shape[1])) #an empty array to hold each of the flux values
+    
+    for wavelength in range(specs_array.shape[1]): # iterate across the wavelength dimension
+        #calculate the average flux value for each wavelength
+        avg_flux_value=np.mean(specs_array[:,wavelength]) 
+        #now save the flux value in the corresponding position in the container for the averaged spectrum
+        avg_spec[wavelength]=avg_flux_value
+        
+    #now return the averaged spectrum for the given label
+    return avg_spec
+
+
+def label_reshape(labels, spectra):
+    '''
+    This is a function which re-shapes a 1-D array holding labels for a given spectrum
+    array into a  2-D array that corresponds to the original spatial dimensions of the
+    original spectrum array.
+
+    Inputs:
+        labels- an array-like- a 1-D array holding the labels of each spectrum from the
+            clustering applied to them.
+
+        spectra- an array-like- a 2-D array holding the actual spectra where the dimensions
+            are nxmxr where n,m are the spatial dimensions and r is the wavelength
+            dimension.
+
+    Outputs:
+        the re-shaped version of the input label matrix in which the dimensions are
+        nxm, corresponding to that of the spectra matrix.
+    '''
+
+    #identify the desired dimensions of the output label matrix
+    rows=spectra.shape[0]
+    cols=spectra.shape[1]
+
+    #reshape the label matrix using these dimensions
+    label_matrix=np.reshape(labels, (rows, cols))
+
+    #return the reshaped label matrix
+    return label_matrix

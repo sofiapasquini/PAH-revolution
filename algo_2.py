@@ -19,7 +19,7 @@ from sklearn.neighbors import NearestCentroid
 from sklearn.preprocessing import normalize
 from sklearn.decomposition import PCA
 from sklearn.metrics import silhouette_score
-from processing import optimal_clusters_inspect, pca_visual, elbow_plot
+from processing import optimal_clusters_inspect, pca_visual, elbow_plot, avg_label, label_reshape
 from spec_build import *
 from pre_processing import *
 import matplotlib.pyplot as plt
@@ -38,12 +38,15 @@ cont, wave_cont=load_continuum("NGC2023_CONTINUUM_MAP_SOUTH.fits")
 ext, wave_ext=load_extinction("NGC2023_EXTINCTION_MAPS_SOUTH.fits")
 
 #extinction correct the spectra
-ext_corr_spec=extinction_correct(ext, spectra)
+##SOFIA-comment this line out when performing clustering on spectra that have
+#NOT been extinction corrected
+# ext_corr_spec=extinction_correct(ext, spectra)
 
 #pre-processing
 
 #transform the map(s) from 3 to 2-dimensional array(s and consolidate)
-df=df_create(ext_corr_spec)
+# df=df_create(ext_corr_spec)
+df=df_create(spectra) #the analysis will be done (for now) on spectra NOT ext-corrected
 
 #apply normalization to the spectra
 df=normalize(df)
@@ -105,3 +108,16 @@ plt.plot(centroids[:,0], centroids[:,1], "*", color='red') #these are the cluste
 plt.show()
 
 #analyze key features of spectra groups/clusters here
+
+#reshape the label matrix from 1-D back to 2-D to match the spectrum matrix
+label_matrix=label_reshape(kmeans_cluster_labels, spectra)
+spec_list=[] # an empty list to hold all of the averaged spectra
+for i in range(optimal_n_clusters):
+    # spec_list.append(avg_label(i,spectra, label_matrix))
+    avg_spec=avg_label(i, spectra, label_matrix)
+    plt.plot(wave, avg_spec, label=str(i))
+#now plot the averaged spectra together
+plt.xlabel("Wavelength [$\mu$m]")
+plt.ylabel("Flux [MJy/sr]")
+plt.legend()
+plt.show()
