@@ -150,6 +150,9 @@ def load_map(map_file):
     #grab the 2-D data file (an array-like)
     map_2d=hdulist[0].data 
 
+    #be sure the axes are in the right order (we want x,y)
+    map_2d=np.swapaxes(map_2d, 0,1)
+
     #transform to create the 1-D data file 
     map_1d=np.reshape(map_2d, (map_2d.shape[0]*map_2d.shape[1],), order='c')
 
