@@ -393,27 +393,28 @@ def avg_label(label, spectra, labels): #inputs are an integer label, the array h
     spectrum for the specified label/class.
     Inputs:
         label: integer- the chosen label for which the average spectrum is to be plotted
-        spectra: an array-like - an nxmxr matrix where n and m are the spatial dimensions
-            and r is the wavelength dimension; the array holding the spectra
-        labels: an array-like - an nxm matrix (where n,m are the same as in the spectra
-            array) which holds the corresponding labels for each spectrum in the spectra 
-            matrix
+
+        spectra: an array-like - an nxm matrix where n is each observation and 
+            m is the wavelength dimension; the array holding the spectra
+
+        labels: an array-like - a 1-D matrix of length n which holds the corresponding 
+            labels for each spectrum in the spectrum matrix
+
     Outputs:
         an array-like- the averaged spectrum for the specified label class.
     '''
     specs_list=[] #an empty list- will hold all the spectra (arrays) for the specified label
     
     #iterate through the labels array
-    #the first two indices in the spectra array match those in the labels array
     for i in range(labels.shape[0]): #across the rows
-        for j in range(labels.shape[1]): #across the columns
+        # for j in range(labels.shape[1]): #across the columns
             
             #save all the corresponding spectra
-            if labels[i,j]==label:
-                specs_list.append(spectra[i,j,:]) #save the spectrum to the list
+            if labels[i]==label:
+                specs_list.append(spectra[i,:]) #save the spectrum to the list
      
     specs_array=np.array(specs_list) #create an array of the spectra (easier for the following operations)
-    
+    print(specs_array.shape)
     #average them up- we want to average along each flux value
     #we construct the averaged spectrum one wavelength at a time
     avg_spec=np.zeros((specs_array.shape[1])) #an empty array to hold each of the flux values
@@ -432,7 +433,8 @@ def label_reshape(labels, spectra):
     '''
     This is a function which re-shapes a 1-D array holding labels for a given spectrum
     array into a  2-D array that corresponds to the original spatial dimensions of the
-    original spectrum array.
+    2-D cleaned spectrum array (ie the spectrum array which has had masked elements removed).
+
     Inputs:
         labels- an array-like- a 1-D array holding the labels of each spectrum from the
             clustering applied to them.
@@ -455,26 +457,22 @@ def label_reshape(labels, spectra):
     return label_matrix
 
 
-def normalize_peak(df):
+def normalize_peak(spectrum):
     '''
-    This is a function which normalizes the fluxes of spectra in an array to that of the peak flux value.
+    This is a function which normalizes a given spectrum to the peak flux value.
 
     Inputs:
-        df: array-like, nxm where n is the number of spectra and m are the wavelength features.
+        spectrum: an array-like- the array holding the flux values.
     
     Outputs:
-        an array-like, an nxm array which is the version of the original input matrix which has been 
-        normalized to the peak flux value for all spectra in the input df.
+        an array-like- the input spectrum which has been normalized to the peak value.
     '''
 
-    #find the index of the peak flux
-    idx_max=df.argmax(axis=1) #we want the max flux per row ie along the column/wavelength axis
+    #calculate the peak flux value
+    peak_flux=np.max(spectrum)
 
-    #for each observation, divide each flux value by the max flux value
-    for i in range(df.shape[0]):
-        spectrum=df[i,:] #the entire original spectrum
-        normalized_spec=np.divide(spectrum, df[i,idx_max]) #the normalized spectrum
-        #replace the original spectrum in the dataframe with the normalized one
-        df[i,:]=normalized_spec
+    #normalize the spectrum to this value
+    normalized_spec=np.divide(spectrum, peak_flux)
 
-    return df
+    #return the normalized spectrum
+    return normalized_spec
