@@ -105,3 +105,53 @@ def extinction_correct(ext_array, spec_array):
     ext_corr=spec_array/ext_array 
 
     return ext_corr
+
+
+
+def continuum_subtract(spec, cont):
+    '''
+    Subtract the continuum emission component from the specified spectrum with a 
+    given continuum map. The input arrays are of the shape (n,m,r) where nxm is the
+    spatial dimension and r is the wavelength dimension.
+
+    Inputs:
+        spec: the spectrum array (an array-like)
+        cont: the continuum array (an array-like)
+
+    Outputs:
+        An array of shape nxmxr which is the spectrum which has had continuum-subtraction
+        applied.
+    '''
+    #subtract the continuum flux by the spectral flux values at each wavelength
+    cont_sub_spec=np.subtract(spec,cont)
+
+    return cont_sub_spec
+
+
+def load_map(map_file):
+    '''
+    This is a function which returns 2 array-like objects containing the mask map
+    for any kind of array; extracts the mask from the input fits file and returns the
+    mask as both a 2-D and 1-D array. The input coordinates of the mask should correspond to a 
+    spatial dimensionality (ie nxm-> x,y).
+
+    Inputs:
+        map_file- a string, the name of the fits file containing the map information.
+
+    Outputs:
+        a tuple of array-like objects holding mask values;
+            the first element is a 1-D array of length n*m and the second element is
+            a 2-D array of shape nxm.
+
+    '''
+    #load in the map
+    hdulist = fits.open(folder+map_file)
+
+    #grab the 2-D data file (an array-like)
+    map_2d=hdulist[0].data 
+
+    #transform to create the 1-D data file 
+    map_1d=np.reshape(map_2d, (map_2d.shape[0]*map_2d.shape[1],), order='c')
+
+
+    return map_1d, map_2d
