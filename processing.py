@@ -6,7 +6,6 @@ after the 'cleaning'/pre-processing has taken place). This module also
 includes functions which perform dimensionality reduction, clustering, and
 other related visualizations on said data that may not technically 
 modify/"process" the original version of the cleaned data.
-
 Coded originally for the Spitzer data cube format, will be edited in accordance
 with the JWST data cube format.
 '''
@@ -20,7 +19,10 @@ from sklearn.metrics import silhouette_samples, silhouette_score
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from scipy.cluster.hierarchy import dendrogram
-from yellowbrick.cluster import KElbowVisualizer
+
+#SOFIA- commenting out the following import just for testing purposes! For some reason jupyter
+#does not like yellowbrick
+# from yellowbrick.cluster import KElbowVisualizer
 
 
 def synthetic_sampler(df):
@@ -29,11 +31,9 @@ def synthetic_sampler(df):
     version of the design matrix in which there is no correlation between
     features by sampling from the marginal distributions of the samples
     to create synthetic observations. 
-
     Inputs: 
         df: 2-D array-like design matrix (following the standard format where
         each row represents an observation and each column represents a feature).
-
     Ouputs:
         A 2-D array-like of the same shape as the input design matrix. This
         matrix contains the synthetic observations.
@@ -61,13 +61,10 @@ def add_labels(df, df_synthetic):
     the corresponding arrays and returns the labelled version of the arrays.
     This functionality is intended for arrays which hold data requiring a 
     binary label (for classification purposes).
-
     Inputs:
         df: a 2-D array-like; the array which holds the data to be labelled "1".
-
         df_synthetic: a 2-D array-like; the array which holds the data to be
             labelled "0".
-
     Outputs:
         (df, df_synthetic): a tuple of the labelled versions of the input arrays
             where the first array is the positive class and the second array is
@@ -91,25 +88,19 @@ def design_stack(df, df_synthetic):
     This is a function which combines labelled arrays of data from binary classes
     into one main dataframe. The design matrix and label components of the 
     dataframe are also identified and returned along with the whole dataframe.
-
     Inputs: 
         df: a 2-D array-like; the array holding the labelled data of the positive class.
-
         df_synthetic: a 2-D array-like; the array holding the labelled data of the
             negative class.
-
     Outputs: 
     
         (df_whole, X, y): a tuple of the entire labelled dataframe, the design matrix
         only, and the corresponding labels, respectively.
-
         df_whole: a 2-D array-like; the array holding the labelled data from both
             positive and negative classes concatenated together.
             NOTE: the observations belonging to each class are not shuffled here.
-
         X: a 2-D array-like; the array holding the design matrix component of
             df_whole (just the data without the column holding the labels).
-
         y: a 1-D array-like; the column of the labels corresponding to the data
             in the design matrix X (both from df_whole).
     '''
@@ -130,13 +121,10 @@ def compute_performance(yhat, y, classes):
     performance of a given classifier. The output summary statement
     includes values for accuracy, precision, recall, sensitivity and 
     specificity, each rounded to three decimal places.
-
     Inputs:
         yhat: a 1D array- or list-like where each element is the predictions 
             made by the classifier
-
         y: a 1D array- or list-like where each element is the true label.
-
         classes: a 1D array- or list-like where each element is a possible label.
     Outputs:
           A statement summarizing the performance of a classifier based on the
@@ -187,18 +175,14 @@ def similarity_matrix(model, X, normalize=True):
     was fit on a specified design matrix. It is assumed that the model used
     is a decision tree ensemble (namely 
     sklearn.ensemble.RandomForestClassifier()).
-
     Inputs:
         model: the instance of the ensembled decision tree model used in this 
         instance.
-
         X: an array-like (2-dimensional?) design matrix. In this context
             each row represents an observation and each column represents
             a wavelength value.
-
         normalize: a keyword that specifies whether or not to normalize the
             distance matrix based on the number of trees in the forest.
-
     Outputs:
         The computed similarity matrix, a 2-dimensional array-like.
     
@@ -223,7 +207,6 @@ def dissimilarity_matrix(s):
     '''
     This function computes a disimilarity matrix based on an input similarity
     matrix.
-
     SOFIA- finish this docstring once you actually figure out whether this is
     the kind of matrix that is relevant to the algorithms/project.
     '''
@@ -254,11 +237,9 @@ def optimal_clusters_inspect(n_clusters, X):
     returns a figure with a silhouette plot for each. Visual inspection
     of each of the silhouette plots returned for the given number of clusters
     input will result in determination of the optimal number of clusters.
-
     Inputs:
         n_clusters: a 1D array- or list-like where each element is the number
                     of clusters to be explored.
-
         X: 2-D array; the cleaned data set where fluxes are stored along the 0th
             axis and wavelength values are stored along the 1st axis.
     Outputs:
@@ -332,19 +313,16 @@ def pca_visual(X, n_clusters):
     '''
     Performs PCA decomposition and returns a figure of Agglomerative clustering
     color-coded by PCs for the number of clusters specified.
-
     Inputs:
         X: 2-D array; the cleaned data set where fluxes are stored along the 0th
             axis and wavelength values are stored along the 1st axis.
         
         n_clusters: a 1D array- or list-like where each element is the number
                     of clusters to be explored
-
     Outputs:
         Figures containing PC plot for each
         number of clusters specified to be explored by 
         the clustering algorithm, color-coded by PCA.
-
     '''
     pca=PCA(n_components=2)
 
@@ -371,10 +349,8 @@ def pca_visual(X, n_clusters):
 def plot_dendrogram(model, **kwargs):
     ''' This function computes a linkage matrix from a given hierarchical model 
     and plots the corresponding dendrogram.
-
     Inputs: 
         model: the fitted, hierarchical model for which to plot the dendrogram.
-
     Outputs:
         a figure object containing the dendrogram for the given model.
     '''
@@ -415,17 +391,13 @@ def avg_label(label, spectra, labels): #inputs are an integer label, the array h
     This is a function which, given a label, an array-like containing labels, and an array-
     like of similar dimension containing the corresponding spectra, returns the average
     spectrum for the specified label/class.
-
     Inputs:
         label: integer- the chosen label for which the average spectrum is to be plotted
-
         spectra: an array-like - an nxmxr matrix where n and m are the spatial dimensions
             and r is the wavelength dimension; the array holding the spectra
-
         labels: an array-like - an nxm matrix (where n,m are the same as in the spectra
             array) which holds the corresponding labels for each spectrum in the spectra 
             matrix
-
     Outputs:
         an array-like- the averaged spectrum for the specified label class.
     '''
@@ -461,15 +433,12 @@ def label_reshape(labels, spectra):
     This is a function which re-shapes a 1-D array holding labels for a given spectrum
     array into a  2-D array that corresponds to the original spatial dimensions of the
     original spectrum array.
-
     Inputs:
         labels- an array-like- a 1-D array holding the labels of each spectrum from the
             clustering applied to them.
-
         spectra- an array-like- a 2-D array holding the actual spectra where the dimensions
             are nxmxr where n,m are the spatial dimensions and r is the wavelength
             dimension.
-
     Outputs:
         the re-shaped version of the input label matrix in which the dimensions are
         nxm, corresponding to that of the spectra matrix.
@@ -484,3 +453,28 @@ def label_reshape(labels, spectra):
 
     #return the reshaped label matrix
     return label_matrix
+
+
+def normalize_peak(df):
+    '''
+    This is a function which normalizes the fluxes of spectra in an array to that of the peak flux value.
+
+    Inputs:
+        df: array-like, nxm where n is the number of spectra and m are the wavelength features.
+    
+    Outputs:
+        an array-like, an nxm array which is the version of the original input matrix which has been 
+        normalized to the peak flux value for all spectra in the input df.
+    '''
+
+    #find the index of the peak flux
+    idx_max=df.argmax(axis=1) #we want the max flux per row ie along the column/wavelength axis
+
+    #for each observation, divide each flux value by the max flux value
+    for i in range(df.shape[0]):
+        spectrum=df[i,:] #the entire original spectrum
+        normalized_spec=np.divide(spectrum, df[i,idx_max]) #the normalized spectrum
+        #replace the original spectrum in the dataframe with the normalized one
+        df[i,:]=normalized_spec
+
+    return df

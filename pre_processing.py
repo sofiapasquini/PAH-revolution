@@ -2,10 +2,8 @@
 This is a module containing all functions related to the 
 pre-processing of the spectra and the construction of the main datasets
 from these 'cleaned' spectra.
-
 Coded originally for the Spitzer data cube format, will be edited in accordance
 with the JWST data cube format.
-
 '''
 
 import numpy as np
@@ -17,10 +15,8 @@ def df_create(map):
     From an input spectral map (should ideally be the cleaned spectra)
     a 2-D array is created such that each row is a single observation, 
     columns corresponding to wavelength value.
-
     Input:
         3-D spectral map where dimensions correspond to (x, y, lambda)
-
     Output: 
         2-D array where rows and columns correspond to flux values and
         wavelength locations, respectively.
@@ -56,7 +52,6 @@ def normalize_77(df):
     Note that this function was written for a dataframe in which the index of the column holding the 7.7 micro meter 
     flux is known and is hard-coded in as the variable idx_77- this value can be altered/changed going forwards/based
     on the use case.
-
     Inputs:
         df: array-like, nxm where n is the number of spectra and m are the wavelength features.
     
