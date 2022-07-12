@@ -70,3 +70,29 @@ def normalize_77(df):
         df[i,:]=normalized_spec
 
     return df
+
+def mask_clean(df,mask):
+    '''
+    This function will remove all elements (row-wise) which have been masked out
+    according to the input mask file.
+
+    Inputs:
+        df- an array-like of size nxm holding the spectra where n is each observation and m is the wavelength
+            dimension.
+        
+        mask- a 1d array-like of length n which holds mask values (values of 0 are interpreted
+            as those to be masked out).
+
+    Outputs:
+        an array-like; the version of the input spectral array df which has had all masked elements
+            removed.
+    '''
+
+    #iterate through the mask and collect indices which are to be removed (marked as 0)
+    to_drop=np.where(mask==0)
+
+    #drop the appropriate rows from the input spectral array- save result in a new object
+    df_cleaned=np.delete(df,to_drop, axis=0)
+
+    #return the cleaned array
+    return df_cleaned
