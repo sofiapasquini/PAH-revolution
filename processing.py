@@ -476,3 +476,47 @@ def normalize_peak(spectrum):
 
     #return the normalized spectrum
     return normalized_spec
+
+
+def spec_label_get(label, spectra, labels):
+    '''
+    This is a function which, given a label, an array-like containing labels, and an array-
+    like of similar dimension containing the corresponding spectra, returns an array of all
+    the spectra belonging to the specified label class.
+
+    Inputs:
+        label: integer- the chosen label for which the average spectrum is to be plotted
+
+        spectra: an array-like - an nxm matrix where n is each observation and 
+            m is the wavelength dimension; the array holding the spectra
+
+        labels: an array-like - a 1-D matrix of length n which holds the corresponding 
+            labels for each spectrum in the spectrum matrix
+
+    Outputs:
+        an array-like- all the spectra for the specified label class.
+        '''
+    specs_list=[] #an empty list- will hold all the spectra (arrays) for the specified label
+    
+    #iterate through the labels array
+    for i in range(labels.shape[0]): #across the rows
+        # for j in range(labels.shape[1]): #across the columns
+            
+            #save all the corresponding spectra
+            if labels[i]==label:
+                specs_list.append(spectra[i,:]) #save the spectrum to the list
+     
+    specs_array=np.array(specs_list) #create an array of the spectra (easier for the following operations)
+    # print(specs_array.shape)
+    # #average them up- we want to average along each flux value
+    # #we construct the averaged spectrum one wavelength at a time
+    # avg_spec=np.zeros((specs_array.shape[1])) #an empty array to hold each of the flux values
+    
+    # for wavelength in range(specs_array.shape[1]): # iterate across the wavelength dimension
+    #     #calculate the average flux value for each wavelength
+    #     avg_flux_value=np.mean(specs_array[:,wavelength]) 
+    #     #now save the flux value in the corresponding position in the container for the averaged spectrum
+    #     avg_spec[wavelength]=avg_flux_value
+        
+    # #now return the averaged spectrum for the given label
+    return specs_array
