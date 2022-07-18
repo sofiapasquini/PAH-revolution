@@ -37,7 +37,10 @@ cont, wave_cont=load_continuum("NGC2023_CONTINUUM_MAP_SOUTH.fits")
 #load in and reshape the extinction maps and corresponding wavelength array
 ext, wave_ext=load_extinction("NGC2023_EXTINCTION_MAPS_SOUTH.fits")
 
-#extinction correct the spectra
+#subtract continuum and extinction correct the spectra
+
+
+
 ##SOFIA-comment this line out when performing clustering on spectra that have
 #NOT been extinction corrected
 # ext_corr_spec=extinction_correct(ext, spectra)
@@ -46,12 +49,26 @@ ext, wave_ext=load_extinction("NGC2023_EXTINCTION_MAPS_SOUTH.fits")
 
 #transform the map(s) from 3 to 2-dimensional array(s and consolidate)
 # df=df_create(ext_corr_spec)
+
 df=df_create(spectra) #the analysis will be done (for now) on spectra NOT ext-corrected
 
-#apply normalization to the spectra
+#apply normalization to the spectra (unit norm per spectra, not to 7.7 line as previously thought)
 df=normalize(df)
 #uncomment the line below if you want to normalize wrt the 7.7 micro meter flux:
 # df=normalize_77(df)
+
+#load in and adjust the pixel mask:
+map_file= "NGC2023_ZONES_MAP_SOUTH.fits"
+hdulist = fits.open(folder+map_file)
+map=hdulist[0].data
+
+#reshape the axes to (x,y) coordinates and to 1D in order to mask out appropriate rows
+map=np.swapaxes(map, 0,1)
+map_1d=np.reshape(map, (map.shape[0]*map.shape[1],), order='c')
+to_drop=np.where(map_1d==0)[0]
+
+#remove the masked spectra from the data:
+df=mask_clean(df, map_1d)
 
 #processing- the algorithm itself
 
@@ -101,16 +118,19 @@ plt.xlabel("Number of points in node (or index of point if no parenthesis).")
 plt.show()
 
 #analyze key features of spectra groups/clusters here
-
+print(cluster_labels.shape)
 #reshape the label matrix from 1-D back to 2-D to match the spectrum matrix
-label_matrix=label_reshape(cluster_labels, spectra)
+# label_matrix=label_reshape(cluster_labels, spectra)
 spec_list=[] # an empty list to hold all of the averaged spectra
 for i in range(optimal_n_clusters):
     # spec_list.append(avg_label(i,spectra, label_matrix))
-    avg_spec=avg_label(i, spectra, label_matrix)
-    plt.plot(wave, avg_spec, label=str(i))
+    # avg_spec=avg_label(i, spectra, label_matrix)
+    avg_spec=avg_label(i,df, cluster_labels)
+    #normalize the spectra to the peak wavelength
+    norm_spec=normalize_peak(avg_spec)
+    plt.plot(wave, norm_spec, label=str(i))
 #now plot the averaged spectra together
 plt.xlabel("Wavelength [$\mu$m]")
-plt.ylabel("Flux [MJy/sr]")
+plt.ylabel("Normalized Flux")
 plt.legend()
 plt.show()

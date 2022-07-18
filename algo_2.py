@@ -14,12 +14,13 @@ eventually be edited to accomodate the JWST data (perhaps a separate script?).
 
 '''
 #import relevant packages
+from turtle import shape
 from sklearn.cluster import AgglomerativeClustering, KMeans
 from sklearn.neighbors import NearestCentroid
 from sklearn.preprocessing import normalize
 from sklearn.decomposition import PCA
 from sklearn.metrics import silhouette_score
-from processing import optimal_clusters_inspect, pca_visual, elbow_plot, avg_label, label_reshape
+from processing import optimal_clusters_inspect, pca_visual, elbow_plot, avg_label, normalize_peak
 from spec_build import *
 from pre_processing import *
 import matplotlib.pyplot as plt
@@ -48,10 +49,24 @@ ext, wave_ext=load_extinction("NGC2023_EXTINCTION_MAPS_SOUTH.fits")
 # df=df_create(ext_corr_spec)
 df=df_create(spectra) #the analysis will be done (for now) on spectra NOT ext-corrected
 
-#apply normalization to the spectra
+#apply normalization to the spectra (unit norm per spectra, not to 7.7 line as previously thought)
 df=normalize(df)
 #uncomment the line below if you want to normalize wrt the 7.7 micro meter flux:
 # df=normalize_77(df)
+
+#load in and adjust the pixel mask:
+map_file= "NGC2023_ZONES_MAP_SOUTH.fits"
+hdulist = fits.open(folder+map_file)
+map=hdulist[0].data
+
+#reshape the axes to (x,y) coordinates and to 1D in order to mask out appropriate rows
+map=np.swapaxes(map, 0,1)
+map_1d=np.reshape(map, (map.shape[0]*map.shape[1],), order='c')
+to_drop=np.where(map_1d==0)[0]
+
+#remove the masked spectra from the data:
+df=mask_clean(df, map_1d)
+
 
 #processing- the algorithm itself
 
@@ -110,12 +125,15 @@ plt.show()
 #analyze key features of spectra groups/clusters here
 
 #reshape the label matrix from 1-D back to 2-D to match the spectrum matrix
-label_matrix=label_reshape(kmeans_cluster_labels, spectra)
+print(kmeans_cluster_labels.shape)
+# label_matrix=label_reshape(kmeans_cluster_labels, spectra)
 spec_list=[] # an empty list to hold all of the averaged spectra
 for i in range(optimal_n_clusters):
     # spec_list.append(avg_label(i,spectra, label_matrix))
-    avg_spec=avg_label(i, spectra, label_matrix)
-    plt.plot(wave, avg_spec, label=str(i))
+    avg_spec=avg_label(i, df, kmeans_cluster_labels)
+    #normalize the spectra to the peak wavelength
+    norm_spec=normalize_peak(avg_spec)
+    plt.plot(wave, norm_spec, label=str(i))
 #now plot the averaged spectra together
 plt.xlabel("Wavelength [$\mu$m]")
 plt.ylabel("Flux [MJy/sr]")

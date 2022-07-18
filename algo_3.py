@@ -54,10 +54,24 @@ ext, wave_ext=load_extinction("NGC2023_EXTINCTION_MAPS_SOUTH.fits")
 # df=df_create(ext_corr_spec)
 df=df_create(spectra) #the analysis will be done (for now) on spectra NOT ext-corrected
 
-#apply normalization to the spectra
+#apply normalization to the spectra (unit norm per spectra, not to 7.7 line as previously thought)
 df=normalize(df)
 #uncomment the line below if you want to normalize wrt the 7.7 micro meter flux:
 # df=normalize_77(df)
+
+#load in and adjust the pixel mask:
+map_file= "NGC2023_ZONES_MAP_SOUTH.fits"
+hdulist = fits.open(folder+map_file)
+map=hdulist[0].data
+
+#reshape the axes to (x,y) coordinates and to 1D in order to mask out appropriate rows
+map=np.swapaxes(map, 0,1)
+map_1d=np.reshape(map, (map.shape[0]*map.shape[1],), order='c')
+to_drop=np.where(map_1d==0)[0]
+
+#remove the masked spectra from the data:
+df=mask_clean(df, map_1d)
+
 
 #processing- the algorithm itself
 
