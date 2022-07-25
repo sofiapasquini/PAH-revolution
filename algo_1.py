@@ -116,6 +116,15 @@ plt.title('PCA-transformed plot for %i clusters' % optimal_n_clusters)
 plt.legend()
 plt.show()
 
+#now lets see the labels of the spectra in the spatial coordinate system
+#reshape the label matrix back to 2D and plot the colormap
+cluster_labels=np.reshape(cluster_labels, (spectra.shape[0], spectra.shape[1]), order='c')
+plt.imshow(cluster_labels, cmap='viridis')
+plt.colorbar()
+plt.title("Cluster Zones from Cluster Results")
+# plt.savefig("/Volumes/LaCie/MASTERS/NGC7469_MIRI/Test_Results/agglomerative_results/agglomerative_cluster_results.png")
+plt.show()
+
 
 #now lets try for a dendrogram visual
 plt.title("Hierarchical Clustering Dendrogram")

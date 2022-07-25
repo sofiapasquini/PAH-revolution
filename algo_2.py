@@ -117,20 +117,29 @@ kmeans_silhouette=silhouette_score(df_pca, kmeans_cluster_labels)
 silhouette_improved=kmeans_silhouette-agglo_silhouette #note: if negative the score worsened
 
 
-#now visualize the results
-import matplotlib.cm as cm
-fig, axs=plt.subplots(1,1)
-colors = cm.nipy_spectral(kmeans_cluster_labels.astype(float) / 5)
-axs.scatter(df_pca[:, 0], df_pca[:, 1], marker='.', s=30, lw=0, alpha=0.7,
-                c=colors, edgecolor='k')
-axs.set_xlabel("First Component Space")
-axs.set_ylabel("Second Component Space")
-axs.set_title(f"Avg Silhouette Score: {round(kmeans_silhouette,4)}, improved by: {round(silhouette_improved,4)}.")
-plt.suptitle("The visualization of the clustered data for "+ str(optimal_n_clusters)+" clusters.")
-plt.plot(centroids[:,0], centroids[:,1], "*", color='red') #these are the cluster centroids
-plt.show()
+# #now visualize the results
+# import matplotlib.cm as cm
+# fig, axs=plt.subplots(1,1)
+# colors = cm.nipy_spectral(kmeans_cluster_labels.astype(float) / 5)
+# axs.scatter(df_pca[:, 0], df_pca[:, 1], marker='.', s=30, lw=0, alpha=0.7,
+#                 c=colors, edgecolor='k')
+# axs.set_xlabel("First Component Space")
+# axs.set_ylabel("Second Component Space")
+# axs.set_title(f"Avg Silhouette Score: {round(kmeans_silhouette,4)}, improved by: {round(silhouette_improved,4)}.")
+# plt.suptitle("The visualization of the clustered data for "+ str(optimal_n_clusters)+" clusters.")
+# plt.plot(centroids[:,0], centroids[:,1], "*", color='red') #these are the cluster centroids
+# plt.show()
 
 #analyze key features of spectra groups/clusters here
+
+#lets see the labels of the spectra in the spatial coordinate system
+#reshape the label matrix back to 2D and plot the colormap
+kmeans_cluster_labels_2d=np.reshape(kmeans_cluster_labels, (spectra.shape[0], spectra.shape[1]), order='c')
+plt.imshow(kmeans_cluster_labels_2d, cmap='viridis')
+plt.colorbar()
+plt.title("Cluster Zones from Cluster Results")
+# plt.savefig("/Volumes/LaCie/MASTERS/NGC7469_MIRI/Test_Results/agglomerative_results/agglomerative_cluster_results.png")
+plt.show()
 
 #reshape the label matrix from 1-D back to 2-D to match the spectrum matrix
 print(kmeans_cluster_labels.shape)
