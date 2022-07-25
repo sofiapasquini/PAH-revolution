@@ -8,25 +8,39 @@ with the JWST data cube format.
 from astropy.io import fits
 import numpy as np
 
-folder="/Volumes/LaCie/MASTERS/NGC2023_IRS_Boersma_2016/"
 
-def load_spec_wavelength(file_name):
+
+def load_spec_wavelength(file_name, sci_ext, wave_ext):
     '''
     Load in wavelength and spectra arrays from the specified file name. 
     Reshape wavelength array from three to one-dimension; the spectral array is re-arranged
     is three-dimensional such that the format is (x, y, lambda).
     The units of the spectrum array are MJy/sr, wavelengths in units of
     micro-meters.
+
+    Inputs:
+        file_name: a string, the full path to the input fits file.
+
+        sci_ext: an int, the number of the science extension in the input fits file.
+            Note: for JWST data this is the second extension (index 1).
+
+        wave_ext: an int, the number of the extension holding the wavelength data in the
+            input fits file. Note: for JWST data this is the third extension (index 2).
     '''
     #open the file
-    hdulist = fits.open(folder+file_name)
+    hdulist = fits.open(file_name)
 
     #read in and reshape wavelength array
-    wave=hdulist[1].data['wavelength']
-    wave=np.reshape(wave, -1)
+    wave=hdulist[wave_ext].data
+    #SOFIA- if working with Spitzer data might have to use this line:
+    # wave=hdulist[wave_ext].data['wavelength']
+
+    #spitzer wavelengths have to be reshaped, not JWST
+    if len(wave.shape)!=1:
+        wave=np.reshape(wave, -1) 
 
     #read in and reshape the spectra array
-    spectra=hdulist[0].data
+    spectra=hdulist[sci_ext].data
     spectra = np.moveaxis(np.swapaxes(spectra, 1, 2), 0, 2) 
 
     #close the file
@@ -136,7 +150,7 @@ def load_map(map_file):
     spatial dimensionality (ie nxm-> x,y).
 
     Inputs:
-        map_file- a string, the name of the fits file containing the map information.
+        map_file- a string, the full path to the fits file containing the map information.
 
     Outputs:
         a tuple of array-like objects holding mask values;
@@ -145,7 +159,7 @@ def load_map(map_file):
 
     '''
     #load in the map
-    hdulist = fits.open(folder+map_file)
+    hdulist = fits.open(map_file)
 
     #grab the 2-D data file (an array-like)
     map_2d=hdulist[0].data 
