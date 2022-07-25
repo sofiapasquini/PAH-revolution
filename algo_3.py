@@ -34,14 +34,19 @@ import seaborn as sns
 ##SOFIA- currently working only with the North files, pondering how best to
 #consolidate the South data files into the dataset
 
+# folder="/Volumes/LaCie/MASTERS/NGC2023_IRS_Boersma_2016/"
+# file_name="NGC2023_SPECTRAL_MAP_SOUTH.fits"
+folder="/Volumes/LaCie/MASTERS/NGC7469_MIRI/"
+file_name= "MRS_stitched_allchannels.fits"
+
 #load in and reshape all wavelength, extinction, spectral maps
-spectra, wave= load_spec_wavelength("NGC2023_SPECTRAL_MAP_SOUTH.fits")
+spectra, wave= load_spec_wavelength(folder+file_name,1,2)
 
 #load in and reshape continuum and corresponding wavelentgh arrays
-cont, wave_cont=load_continuum("NGC2023_CONTINUUM_MAP_SOUTH.fits")
+# cont, wave_cont=load_continuum("NGC2023_CONTINUUM_MAP_SOUTH.fits")
 
 #load in and reshape the extinction maps and corresponding wavelength array
-ext, wave_ext=load_extinction("NGC2023_EXTINCTION_MAPS_SOUTH.fits")
+# ext, wave_ext=load_extinction("NGC2023_EXTINCTION_MAPS_SOUTH.fits")
 
 #extinction correct the spectra
 ##SOFIA-comment this line out when performing clustering on spectra that have
@@ -59,25 +64,27 @@ df=normalize(df)
 #uncomment the line below if you want to normalize wrt the 7.7 micro meter flux:
 # df=normalize_77(df)
 
-#load in and adjust the pixel mask:
-map_file= "NGC2023_ZONES_MAP_SOUTH.fits"
-hdulist = fits.open(folder+map_file)
-map=hdulist[0].data
+##SOFIA- is this not the same as map_1d, map_2d=spec_build.load_map(folder+map_file)?
+# #load in and adjust the pixel mask:
+# map_file= "NGC2023_ZONES_MAP_SOUTH.fits"
+# hdulist = fits.open(folder+map_file)
+# map=hdulist[0].data
 
-#reshape the axes to (x,y) coordinates and to 1D in order to mask out appropriate rows
-map=np.swapaxes(map, 0,1)
-map_1d=np.reshape(map, (map.shape[0]*map.shape[1],), order='c')
-to_drop=np.where(map_1d==0)[0]
+# #reshape the axes to (x,y) coordinates and to 1D in order to mask out appropriate rows
+# map=np.swapaxes(map, 0,1)
+# map_1d=np.reshape(map, (map.shape[0]*map.shape[1],), order='c')
+# to_drop=np.where(map_1d==0)[0]
 
-#remove the masked spectra from the data:
-df=mask_clean(df, map_1d)
+# #remove the masked spectra from the data:
+# df=mask_clean(df, map_1d)
 
 
 #processing- the algorithm itself
 
 #start by determining the optimal number of clusters to use
 
-clusters_range=[2,3,4,5,6,7,8] #can change to anything you like
+# clusters_range=[2,3,4,5,6,7,8] #can change to anything you like
+clusters_range=[6,7,8]
 
 #create an elbow plot to visualize the difference between the quality of clustering for each number of clusters
 elbow_plot(cluster_range=clusters_range, data=df)
